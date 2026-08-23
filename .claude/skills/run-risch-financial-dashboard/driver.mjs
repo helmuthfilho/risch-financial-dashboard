@@ -112,6 +112,15 @@ const COMMANDS = {
     console.log(page.url());
   },
 
+  // emulate-color-scheme dark   OR   emulate-color-scheme light
+  // Sets the actual prefers-color-scheme media feature (unlike editing CSS
+  // vars via `eval`, this also flips Tailwind `dark:` variant classes).
+  async "emulate-color-scheme"(scheme) {
+    if (!page) return console.log("ERROR: launch first");
+    await page.emulateMedia({ colorScheme: scheme });
+    console.log("emulate-color-scheme", scheme, "→ OK");
+  },
+
   console(arg) {
     if (arg === "--errors" || arg === "") {
       if (consoleErrors.length === 0) console.log("no console errors");

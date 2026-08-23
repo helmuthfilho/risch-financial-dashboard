@@ -24,10 +24,10 @@ export function Sidebar() {
             <li key={item.href}>
               <Link
                 href={item.href}
-                className={`block rounded px-3 py-2 text-sm ${
+                className={`block rounded px-3 py-2 text-sm transition-colors ${
                   active
-                    ? "bg-black/10 dark:bg-white/15 font-medium"
-                    : "hover:bg-black/5 dark:hover:bg-white/10"
+                    ? "bg-brand-strong text-brand-foreground font-medium"
+                    : "hover:bg-brand/10 hover:text-brand"
                 }`}
               >
                 {item.label}
