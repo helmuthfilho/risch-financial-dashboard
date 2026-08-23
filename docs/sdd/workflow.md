@@ -18,7 +18,7 @@ docs/specs/NNN-nome.md   →   docs/plans/NNN-nome.md   →   docs/tasks/NNN-nom
 
 Descreve **o quê** e **por quê**, nunca **como**. Usa
 `docs/specs/_template.md`. Numeração sequencial de 3 dígitos (`001`, `002`, ...)
-compartilhada entre specs/plans/tasks do mesmo tema.
+compartilhada entre specs/plans/tasks do mesmo tema (mesmo número + mesmo nome).
 
 Deve ser possível ler uma spec sem saber nada de código.
 

@@ -38,7 +38,7 @@ como `Decimal` no Prisma (mapeado para `numeric` no Postgres).
 ## Decisões técnicas
 
 | Decisão                      | Alternativas consideradas     | Motivo da escolha                                                                           |
-| ----------------------------- | ------------------------------ | --------------------------------------------------------------------------------------------- |
+| ---------------------------- | ----------------------------- | ------------------------------------------------------------------------------------------- |
 | Next.js App Router           | Pages Router                  | App Router é o padrão atual, melhor suporte a layouts aninhados (útil para a sidebar)       |
 | Docker Compose para Postgres | Instalação nativa do Postgres | Reprodutível, isolado, fácil de destruir/recriar sem afetar a máquina do usuário            |
 | Prisma                       | Drizzle                       | Registrado em [[0002-stack-tecnologica]]                                                    |

@@ -84,7 +84,7 @@ Stop the dev server when done: `lsof -ti:3000 -sTCP:LISTEN | xargs -r kill`.
 ### Driver commands
 
 | command                                            | what it does                                   |
-| --------------------------------------------------- | ------------------------------------------------ |
+| -------------------------------------------------- | ---------------------------------------------- |
 | `launch`                                           | launch headless Chromium                       |
 | `nav <url>`                                        | navigate                                       |
 | `wait-for text=<text>` / `wait-for <css-selector>` | wait up to 10s                                 |
@@ -93,7 +93,7 @@ Stop the dev server when done: `lsof -ti:3000 -sTCP:LISTEN | xargs -r kill`.
 | `fill <css-selector> <text...>`                    | fill an input                                  |
 | `press <key>`                                      | keyboard key (e.g. `Enter`)                    |
 | `text [css-selector]`                              | print `innerText` (body if no selector)        |
-| `eval <js>`                                        | evaluate JS in the page, print JSON             |
+| `eval <js>`                                        | evaluate JS in the page, print JSON            |
 | `url`                                              | print current URL                              |
 | `console --errors`                                 | print captured `console.error`/page errors     |
 | `quit`                                             | close the browser                              |
