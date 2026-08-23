@@ -1,0 +1,38 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum FixedIncomeType {
+  CDB
+  TREASURY_DIRECT
+  LCI_LCA
+}
+
+model FixedIncomePosition {
+  id                 String    @id @default(cuid())
+  institution        String
+  type               FixedIncomeType
+  description        String?
+  appliedAt          DateTime
+  appliedAmountCents BigInt
+  contractedRate     String?
+  maturityDate       DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  valueUpdates FixedIncomeValueUpdate[]
+}
+
+model FixedIncomeValueUpdate {
+  id          String              @id @default(cuid())
+  position    FixedIncomePosition @relation(fields: [positionId], references: [id], onDelete: Cascade)
+  positionId  String
+  amountCents BigInt
+  asOf        DateTime
+  createdAt   DateTime            @default(now())
+}
