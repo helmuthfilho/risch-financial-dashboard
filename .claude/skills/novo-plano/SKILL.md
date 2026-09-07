@@ -1,20 +1,40 @@
 ---
 name: novo-plano
 description: Cria o plano técnico de uma spec aprovada em docs/plans/, entrevistando o usuário sobre as decisões técnicas e de negócio em aberto antes de escrever. Use quando o usuário pedir para planejar/detalhar tecnicamente uma spec, criar o plano técnico, ou avançar de spec para plano no fluxo Spec → Plano → Tasks.
+model: sonnet
+effort: medium
 ---
 
 Ajuda a escrever o plano técnico (`docs/plans/NNN-nome.md`) de uma spec já
 existente, seguindo `docs/sdd/workflow.md` e o template
 `docs/plans/_template.md`. O que diferencia essa skill de só preencher o
 template é a **entrevista**: antes de escrever qualquer coisa, ela levanta as
-decisões técnicas e de negócio que a spec deixou em aberto e pergunta ao
-usuário — em vez de assumir silenciosamente. Esta skill só cuida do **plano**
-(o como) — não escreve tasks nem implementa; isso fica para depois.
+decisões técnicas que a spec deixou em aberto e pergunta ao usuário — em vez
+de assumir silenciosamente. Esta skill só cuida do **plano** (o como) — não
+escreve tasks nem implementa; isso fica para depois.
+
+Divisão de responsabilidade com `nova-spec`, para não duplicar pergunta em
+duas etapas: `nova-spec` entrevista e registra só os **requisitos
+funcionais** (comportamento observável). Esta skill (`novo-plano`) parte
+desses requisitos funcionais já prontos e é responsável por **planejar a
+execução deles** e, adicionalmente, por **levantar os requisitos
+não-funcionais** da feature (desempenho/volume, segurança/privacidade,
+outros — ver a nova seção "Requisitos não-funcionais" de
+`docs/plans/_template.md`). Por isso, toda pergunta feita nesta skill —
+mesmo quando toca um caso de negócio como "o que mostrar antes de existir
+dado" — existe para decidir um comportamento técnico a implementar, nunca
+para renegociar escopo funcional (isso já foi fechado na spec).
 
 Pode ser invocada automaticamente pela skill `nova-spec`, logo depois que o
 usuário aprova uma spec na mesma conversa (ver o Passo 4 de `nova-spec`).
 Nesse caso, a spec-alvo já é conhecida — pule a busca por qual spec usar no
-Passo 1 e vá direto para a entrevista do Passo 2.
+Passo 1, garanta a branch dedicada no Passo 2 (isso roda sempre, mesmo
+quando invocada automaticamente) e vá direto para a entrevista do Passo 3.
+
+Roda com `model: sonnet` e `effort: medium`: já recebe a spec pronta como
+insumo (o levantamento de contexto mais caro já foi feito por `nova-spec`,
+em Opus), então essa etapa só precisa transformar decisões em plano técnico
+— não precisa do modelo mais caro para isso.
 
 Todos os caminhos abaixo são relativos à raiz do repositório.
 
@@ -46,11 +66,55 @@ O plano usa o **mesmo número e nome** da spec (`docs/specs/002-x.md` →
 usuário antes de prosseguir — não é bloqueante, mas vale confirmar que ele
 quer planejar algo ainda não aprovado.
 
-## Passo 2 — A entrevista
+## Passo 2 — Garantir uma branch dedicada
 
-Releia a spec inteira (requisitos funcionais, não-funcionais, critérios de
-aceite, desvios da constituição, perguntas em aberto) e monte uma lista de
-decisões técnicas necessárias para implementá-la. Categorias comuns a
+Antes de entrevistar o usuário ou escrever qualquer coisa, garanta que este
+plano — e as tasks/implementação que vêm depois dele — não caem direto na
+branch principal.
+
+```bash
+git branch --show-current
+git symbolic-ref --short refs/remotes/origin/HEAD 2>/dev/null | sed 's@^origin/@@'
+```
+
+O segundo comando dá o nome real da branch principal do repositório remoto
+(normalmente `main`, mas não assuma — use o que ele retornar; se não
+retornar nada, caia para `main`).
+
+- **Já está numa branch diferente da principal**: nada a fazer, continue
+  nela — presuma que já foi criada para este trabalho.
+- **Está na branch principal**: antes de criar a nova branch, rode
+  `git status`. Se houver mudanças não commitadas que não sejam a spec
+  deste tema (ex.: arquivos de outra funcionalidade em andamento que
+  alguém esqueceu de commitar), **pare e avise o usuário** em vez de levar
+  tudo para a nova branch sem avisar — não é destrutivo (`checkout -b` não
+  descarta nada), mas pode misturar trabalhos diferentes.
+  Depois, crie a branch **a partir da branch principal** e mude para ela:
+
+  ```bash
+  git checkout -b feat/<slug> <branch-principal>
+  ```
+
+  `<slug>` é o mesmo slug kebab-case do arquivo da spec
+  (`docs/specs/NNN-<slug>.md`, sem o `NNN-`) — o nome já descreve a
+  funcionalidade, reaproveite-o em vez de inventar outro. Isso segue o
+  padrão já usado no repositório (`feat/redesign-visual-home`,
+  `feat/sdd-setup-e-renda-fixa`).
+
+- **Já existe uma branch com esse nome** (ex.: retomando um plano
+  interrompido): troque para ela (`git checkout feat/<slug>`) em vez de
+  tentar recriá-la.
+- Depois de trocar, avise o usuário em uma frase qual branch está sendo
+  usada (nova ou já existente). Não é preciso pedir aprovação para isso —
+  é uma ação local e reversível — mas o usuário precisa saber onde o
+  trabalho está pousando.
+
+## Passo 3 — A entrevista
+
+Releia a spec inteira (requisitos funcionais, critérios de aceite, desvios
+da constituição, perguntas em aberto) e monte uma lista de decisões técnicas
+necessárias para implementá-la — incluindo os requisitos não-funcionais, que
+são responsabilidade desta skill, não da spec. Categorias comuns a
 verificar:
 
 - **Modelo de dados**: novas tabelas/campos, o que fica armazenado vs. o que
@@ -61,9 +125,14 @@ verificar:
   usou Server Actions) antes de reabrir essa decisão do zero.
 - **Bibliotecas novas**: validação, parsing, cálculo, formatação — qual usar
   e por quê, alternativas descartadas.
-- **Volume de dados / performance**: a spec já definiu isso na seção de
-  requisitos não-funcionais? Se não, é uma pergunta de negócio, não técnica.
-- **Segurança / privacidade**: algum dado novo sensível entrando no sistema?
+- **Volume de dados / performance**: qual escala é esperada (linhas, chamadas,
+  frequência)? Isso muda a escolha entre calcular em tempo de leitura vs.
+  armazenar/cachear? Vira o item "Desempenho / volume de dados esperado" da
+  seção "Requisitos não-funcionais" do plano.
+- **Segurança / privacidade**: algum dado novo sensível entrando no sistema
+  (considerando sempre "dados financeiros são sensíveis por padrão")? Como
+  ele é tratado (log, exibição, exportação)? Vira o item "Segurança /
+  privacidade" da mesma seção do plano.
 - **Estratégia de testes**: quais casos críticos de `src/lib/**` precisam de
   teste unitário (lembrando do coverage mínimo de 80%, [[0004-testes-unitarios-obrigatorios-para-logica-de-negocio]]);
   o que só dá pra validar via navegador.
@@ -95,7 +164,7 @@ mais do que essa feature** (vai se repetir em Renda Variável/Gastos/outras
 sem essa confirmação, mas também não deixe uma decisão claramente
 cross-cutting enterrada só no plano.
 
-## Passo 3 — Escrever o plano
+## Passo 4 — Escrever o plano
 
 Copie a estrutura de `docs/plans/_template.md` para
 `docs/plans/NNN-slug-kebab-case.md` (mesmo slug da spec), preenchendo:
@@ -107,6 +176,9 @@ Copie a estrutura de `docs/plans/_template.md` para
 - **Modelo de dados**: schema novo/alterado. Sempre respeitando
   [[constitution]] (dinheiro em centavos, nomenclatura em inglês para
   código).
+- **Requisitos não-funcionais**: desempenho/volume esperado, segurança e
+  privacidade, outros — preenchido a partir das respostas da entrevista
+  (Passo 3), nunca copiado da spec (ela não tem mais essa seção).
 - **Decisões técnicas**: tabela com decisão, alternativas consideradas,
   motivo — tanto as que você decidiu sozinho quanto as respondidas na
   entrevista. Se alguma virou ADR, referencie-o aqui em vez de repetir o
@@ -118,11 +190,11 @@ Copie a estrutura de `docs/plans/_template.md` para
   validar manualmente (via a skill `run-<projeto>` de navegador, se existir).
 - **Plano de tasks**: aponta para `docs/tasks/NNN-nome.md` ("a criar").
 
-## Passo 4 — Fechar o loop
+## Passo 5 — Fechar o loop
 
 - Rode `npx prettier --write docs/plans/NNN-*.md` (e qualquer ADR novo) para
   manter a formatação consistente com o resto do repo.
-- Se algum ADR novo foi criado no Passo 2, atualize `docs/sdd/constitution.md`
+- Se algum ADR novo foi criado no Passo 3, atualize `docs/sdd/constitution.md`
   quando a decisão for realmente um princípio do projeto (bump de versão),
   do jeito que [[0003-dinheiro-como-inteiro-em-centavos]] e
   [[0004-testes-unitarios-obrigatorios-para-logica-de-negocio]] fizeram.
@@ -132,9 +204,10 @@ Copie a estrutura de `docs/plans/_template.md` para
   "pode seguir", "tá bom"): atualize `status: aprovado` no frontmatter e, em
   seguida, **invoque a skill `novas-tasks` automaticamente**, sem esperar um
   pedido separado — passe o plano recém-aprovado como alvo, para ela não
-  perguntar de novo qual plano usar. Isso é seguro porque `novas-tasks` só
-  gera o arquivo de tasks; ela mesma não implementa sem autorização explícita
-  do usuário.
+  perguntar de novo qual plano usar. Isso é seguro porque gerar o arquivo de
+  tasks não implementa nada sozinho: `novas-tasks` só despacha a execução em
+  clusters depois de uma autorização explícita e separada do usuário, além
+  da aprovação da lista de tasks em si.
 - Se o usuário não sinalizar aprovação (ex.: "vou revisar depois", ou
   simplesmente não comentar), **não** avance sozinho — só ofereça o próximo
   passo e espere.
