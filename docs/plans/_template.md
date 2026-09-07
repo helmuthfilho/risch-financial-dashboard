@@ -25,6 +25,12 @@ Resumo de 2-3 frases de como a spec `docs/specs/NNN-nome.md` será implementada.
 Novas tabelas/campos, ou mudanças em existentes. Lembrar do princípio "dinheiro
 nunca é float" (ver [[constitution]]).
 
+## Requisitos não-funcionais
+
+- Desempenho / volume de dados esperado:
+- Segurança / privacidade (ver [[constitution]] item 2):
+- Outros:
+
 ## Decisões técnicas
 
 | Decisão | Alternativas consideradas | Motivo da escolha |

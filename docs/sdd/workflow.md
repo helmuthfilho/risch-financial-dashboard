@@ -1,6 +1,6 @@
 ---
 título: Fluxo de Trabalho SDD
-atualizado_em: 2026-08-22
+atualizado_em: 2026-09-07
 ---
 
 # Fluxo de Trabalho (Spec-Driven Development)
@@ -20,6 +20,11 @@ Descreve **o quê** e **por quê**, nunca **como**. Usa
 `docs/specs/_template.md`. Numeração sequencial de 3 dígitos (`001`, `002`, ...)
 compartilhada entre specs/plans/tasks do mesmo tema (mesmo número + mesmo nome).
 
+Cobre só **requisitos funcionais** (comportamento observável). Requisitos
+não-funcionais (desempenho/volume, segurança/privacidade, etc.) não são
+levantados aqui — isso é responsabilidade do plano técnico, para não
+entrevistar o usuário duas vezes sobre o mesmo assunto em etapas diferentes.
+
 Deve ser possível ler uma spec sem saber nada de código.
 
 ## 2. Plano técnico (`docs/plans/NNN-nome.md`)
@@ -27,6 +32,10 @@ Deve ser possível ler uma spec sem saber nada de código.
 Descreve **como** implementar a spec correspondente: arquitetura, modelo de
 dados, decisões técnicas, alternativas consideradas e riscos. Usa
 `docs/plans/_template.md`. Referencia explicitamente a spec de origem.
+
+Também é onde os **requisitos não-funcionais** da feature são levantados e
+registrados (seção "Requisitos não-funcionais" do template) — a spec só
+traz o funcional.
 
 Decisões arquiteturais que sobrevivem além de uma única feature (ex.: escolha
 de banco de dados, framework, estratégia de autenticação) viram um ADR em

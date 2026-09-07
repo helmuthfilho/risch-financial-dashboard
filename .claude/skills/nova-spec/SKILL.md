@@ -1,6 +1,8 @@
 ---
 name: nova-spec
 description: Cria uma nova spec de funcionalidade em docs/specs/, seguindo o fluxo de Spec-Driven Development do projeto (docs/sdd/workflow.md). Use quando o usuário pedir para criar/escrever/especificar uma nova funcionalidade, iniciar uma spec, ou começar o fluxo Spec → Plano → Tasks para algo novo.
+model: opus
+effort: high
 ---
 
 Ajuda a escrever uma nova spec de funcionalidade para o dashboard financeiro,
@@ -8,6 +10,22 @@ seguindo `docs/sdd/workflow.md` e o template `docs/specs/_template.md`. Esta
 skill só cuida da **spec** (o quê / por quê) — não escreve o plano técnico
 nem as tasks; isso fica para depois, com o próprio fluxo do projeto ou com
 uma spec futura dedicada a isso.
+
+Escopo estrito: esta skill entrevista e registra só os **requisitos
+funcionais** (o comportamento observável da feature). Não pergunte sobre
+desempenho, volume de dados, segurança/privacidade técnica ou qualquer
+outro requisito não-funcional — isso é levantado depois, na entrevista
+puramente técnica da skill `novo-plano`, para não duplicar pergunta sobre o
+mesmo assunto em duas etapas. Se o usuário trouxer voluntariamente um
+requisito não-funcional durante esta conversa, anote-o mentalmente e avise
+que ele será formalizado no plano, em vez de criar uma seção pra isso na
+spec.
+
+Roda com `model: opus` e `effort: high` de propósito: é a etapa que reúne o
+máximo de contexto do repositório (constituição, glossário, specs/ADRs
+anteriores) e toma as decisões de escopo mais caras de errar — vale gastar
+mais tokens aqui para que `novo-plano` e `novas-tasks`, mais adiante, possam
+rodar com modelos mais baratos em cima de uma spec já bem fundamentada.
 
 Todos os caminhos abaixo são relativos à raiz do repositório.
 
@@ -47,11 +65,12 @@ pergunte o que for genuinamente indefinido. Itens a esclarecer:
   algo do "fora de escopo" da própria spec já está coberto pela seção 3 da
   constituição (`docs/sdd/constitution.md`) — se estiver, basta referenciar,
   não repetir.
-- **Requisitos funcionais**: lista numerada, comportamento observável.
-- **Requisitos não-funcionais**: desempenho/volume esperado, segurança e
-  privacidade (sempre considerar o princípio "dados financeiros são
-  sensíveis por padrão"), outros.
-- **Critérios de aceite**: checklist verificável, não ambíguo.
+- **Requisitos funcionais**: lista numerada, comportamento observável. Esta
+  é a seção central da spec — insista aqui até cobrir todo o comportamento
+  esperado, mesmo que isso signifique várias rodadas de pergunta.
+- **Critérios de aceite**: checklist verificável, não ambíguo — derivado dos
+  requisitos funcionais, não de requisitos técnicos/não-funcionais (esses
+  ficam para os critérios de aceite do plano, se fizer sentido lá).
 - **Desvios da constituição**: avalie contra os 7 princípios de
   `docs/sdd/constitution.md`. Se não houver tensão, escreva "nenhum" — não
   pule essa seção.

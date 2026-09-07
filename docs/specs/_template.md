@@ -30,12 +30,6 @@ Uma frase clara do resultado desejado.
 
 1.
 
-## Requisitos não-funcionais
-
-- Desempenho / volume de dados esperado:
-- Segurança / privacidade (ver [[constitution]] item 2):
-- Outros:
-
 ## Critérios de aceite
 
 - [ ]
