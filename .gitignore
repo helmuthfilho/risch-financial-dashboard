@@ -31,6 +31,8 @@ yarn-error.log*
 .pnpm-debug.log*
 
 # env files (can opt-in for committing if needed)
+# .env guarda segredos (DATABASE_URL, BRAPI_TOKEN): nunca versionar
+.env
 .env*
 !.env.example
 
@@ -43,3 +45,8 @@ next-env.d.ts
 
 # prisma
 /prisma/generated
+
+# skill analise-fii-acoes: downloads/cache (CVM, FundosNET, brapi) e venv Python
+/.cache/
+.venv/
+__pycache__/
